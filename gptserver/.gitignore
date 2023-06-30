@@ -12,4 +12,4 @@ runtime/
 *.cache
 vendor/
 yapi.php
-test/yapi.php
+_ide_helper_models.php

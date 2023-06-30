@@ -6,7 +6,7 @@ use App\Base\OpenAi\ChatCompletionsRequest;
 use App\Base\OpenAi\OpenaiChatCompletionsRequest;
 use App\Base\OpenAi\OpenAIClient;
 use App\Http\Dto\ChatDto;
-use App\Http\Dto\Config\GptSecretKeyDto;
+use App\Http\Dto\Config\WebsiteConfigDto;
 use App\Job\MemberConsumptionJob;
 use App\Job\UserChatLogRecordJob;
 use App\Model\Config;
@@ -23,12 +23,46 @@ class ChatGPTService
      */
     public function chatProcess($userId, ChatDto $dto)
     {
-        // 发送请求
-        $client = new OpenAIClient();
+        [$result, $request] = $this->exec($dto, $userId);
 
-        $request = Config::toDto(Config::GPT_SECRET_KEY)->key_type == GptSecretKeyDto::OPENAI ?
-            new OpenaiChatCompletionsRequest($dto):
-            new ChatCompletionsRequest($dto);
+        // 如果没有正常返回，不进行扣费与记录
+        if ($result->result) {
+
+            if (! $request instanceof ChatCompletionsRequest) {
+                $dto->cached($result->result['id'], $result->result['messages']);
+            }
+
+            asyncQueue(new MemberConsumptionJob($userId));
+            asyncQueue(new UserChatLogRecordJob(
+                $result->result['messages'],
+                $result->result['id'],
+                $dto,
+                $userId,
+                $cacheMessage['first_id'] ?? ''
+            ));
+        }
+    }
+
+    /**
+     * 发送请求
+     *
+     * @param ChatDto $dto
+     * @param $userId
+     * @return array
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Throwable
+     */
+    public function exec(ChatDto $dto, $userId)
+    {
+        $keyType = Config::toDto(Config::GPT_SECRET_KEY)->key_type;
+
+        // 发送请求
+        $client = new OpenAIClient($keyType);
+
+        $request = match ($keyType){
+            WebsiteConfigDto::OPENAI => new OpenaiChatCompletionsRequest($dto),
+            default => new ChatCompletionsRequest($dto),
+        };
 
         /* @var ChatCompletionsRequest $result */
         $result = $client->exec($request);
@@ -37,12 +71,12 @@ class ChatGPTService
             'user_id' => $userId,
             'result' => $result->result,
             'request' => $result->data,
+            'debug' => $result->debug,
+            'class' => $request::class,
+            'key' => DevelopService::getApikey(),
+            'key_type' => $keyType,
         ]);
 
-        // 如果没有正常返回，不进行扣费与记录
-        if ($result->result) {
-            asyncQueue(new MemberConsumptionJob($userId));
-            asyncQueue(new UserChatLogRecordJob($result->result['messages'], $result->result['id'], $dto, $userId, $cacheMessage['first_id'] ?? ''));
-        }
+        return [$result, $request];
     }
 }

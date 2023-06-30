@@ -23,6 +23,8 @@ class ChatCompletionsRequest extends Request implements RequestInterface
 
     public $pipeline = false;
 
+    public $debug;
+
     public $result;
 
     /**
@@ -105,6 +107,8 @@ class ChatCompletionsRequest extends Request implements RequestInterface
     {
         $data = json_decode($data, true);
 
+        $this->debug = $data;
+
         // 如果没有json错误，则表示返回的是json
         if (! json_last_error()) {
             switch ($data['err_code']){
@@ -112,8 +116,6 @@ class ChatCompletionsRequest extends Request implements RequestInterface
                     throw new LogicException(ErrCode::SYSTEM_INSUFFICIENT_BALANCE);
                 case ErrCode::AUTHENTICATION:
                     throw new LogicException(ErrCode::SYSTEM_KEY_INVALID);
-                default:
-                    throw new LogicException($data['err_code']);
             }
         }
     }

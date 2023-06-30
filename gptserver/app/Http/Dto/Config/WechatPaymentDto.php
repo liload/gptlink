@@ -2,7 +2,8 @@
 
 namespace App\Http\Dto\Config;
 
-use Cblink\Dto\Dto;
+use App\Model\Config;
+use Cblink\HyperfExt\Dto;
 
 /**
  * @property integer $type 类型
@@ -23,8 +24,8 @@ class WechatPaymentDto extends Dto implements ConfigDtoInterface
 	public function getDefaultConfig(): array
 	{
 		return [
-			'type'    => $this->getItem('type'),
-			'mch_id'   => $this->getItem('mch_id'),
+			'type' => $this->getItem('type'),
+			'mch_id' => $this->getItem('mch_id'),
 			'key' => $this->getItem('key'),
 			'appid' => $this->getItem('appid'),
 		];
@@ -50,7 +51,7 @@ class WechatPaymentDto extends Dto implements ConfigDtoInterface
 	public function getUniqueFillable(): array
 	{
 		return [
-			'type'    => $this->getItem('type'),
+			'type'    => $this->getItem('type', Config::WECHAT_PAYMENT),
 		];
 	}
 }

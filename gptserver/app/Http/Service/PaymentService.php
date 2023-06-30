@@ -27,20 +27,12 @@ class PaymentService
      *
      * @param PayOrderDto $dto
      * @return mixed
-     * @throws GuzzleException
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
     public function unify(PayOrderDto $dto)
     {
-        /* @var WechatPaymentDto $payDto */
-        $payDto = Config::toDto(Config::WECHAT_PAYMENT);
-
-        $response = $this->wechat->pay(array_merge(config('wechat.pay'), [
-            'app_id' => $payDto->appid,
-            'mch_id' => $payDto->mch_id,
-            'key' => $payDto->key,
-        ]))->order->unify($dto->toData());
+        $response = $this->wechat->v2Order($dto->toData());
 
         return $this->wechat->response($response);
     }

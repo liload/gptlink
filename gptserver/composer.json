@@ -23,6 +23,7 @@
         "doctrine/cache": "^1.11",
         "doctrine/dbal": "^3.0",
         "firebase/php-jwt": "^6.5",
+        "gioni06/gpt3-tokenizer": "^1.2",
         "hyperf/async-queue": "~2.2.0",
         "hyperf/cache": "~2.2.0",
         "hyperf/command": "~2.2.0",
@@ -45,6 +46,7 @@
         "hyperf/snowflake": "^2.2",
         "hyperf/validation": "^2.2",
         "overtrue/easy-sms": "^2.4",
+        "phpoffice/phpspreadsheet": "^1.28",
         "qiniu/php-sdk": "^7.8",
         "ramsey/uuid": "^4.2",
         "w7corp/easywechat": "^5.0"
@@ -66,8 +68,8 @@
         "ext-pdo": "Required to use MySQL Client.",
         "ext-pdo_mysql": "Required to use MySQL Client.",
         "ext-redis": "Required to use Redis Client.",
-        "ext-bcmath": "Required to use Redis Client.",
-        "ext-curl": "Required to use Redis Client."
+        "ext-curl": "Required to use Curl Client.",
+        "ext-bcmath": "Required to use Bcmath Client."
     },
     "autoload": {
         "psr-4": {

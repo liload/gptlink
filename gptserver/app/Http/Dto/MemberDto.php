@@ -6,6 +6,9 @@ use App\Model\Member;
 use Cblink\HyperfExt\Dto;
 use Hyperf\Utils\Str;
 
+/**
+ * @property string|null $share_openid
+ */
 class MemberDto extends Dto
 {
     protected $fillable = [
@@ -13,6 +16,8 @@ class MemberDto extends Dto
         'avatar',
         'mobile',
         'source',
+        'share_openid',
+        'account_type',
     ];
 
     public function getData()
@@ -25,11 +30,8 @@ class MemberDto extends Dto
             'mobile' => $this->getItem('mobile'),
             'platform' => Member::PLATFORM_GPT,
             'source' => $this->getItem('source'),
+            'account_type' => $this->getItem('account_type', Member::ACCOUNT_MOBILE),
+            'parent_openid' => $this->getItem('share_openid'),
         ];
-    }
-
-    public function getUniqueData()
-    {
-        return ['mobile' => $this->getItem('mobile')];
     }
 }

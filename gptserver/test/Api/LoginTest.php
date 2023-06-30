@@ -39,15 +39,8 @@ class LoginTest extends TestCase
     public function testWebWechatCheckSmsCode()
     {
         // 注册
-        $platform = 'weixin';
         $mobile = '13944700000';
-        $memberOrOath = (new MemberOauthService())->oauthLogin(new OauthDto([
-            'nickname' => 'test',
-            'avatar' => 'test.jpg',
-            'openid' => 'test',
-            'unionid' => 'test',
-            'platform' => $platform,
-        ]));
+        $memberOrOath = MemberFactory::createOauth(0);
         // 短信
         $code = 1234;
         $cacheKey = sprintf('sms_code_login_%s', $mobile);
@@ -57,10 +50,8 @@ class LoginTest extends TestCase
 
         $response = $this->post("/sms/login", [
             'mobile' => $mobile,
-            'oauth_id' => Arr::get($memberOrOath, 'oauth_id'),
+            'oauth_id' => base64_encode($memberOrOath->id),
             'code' => $code,
-            'platform' => '',
-            'business_id' => 0,
             'source' => '',
         ]);
 
@@ -78,18 +69,17 @@ class LoginTest extends TestCase
                 'mobile' => '手机号',
                 'code' => '手机短信 code',
                 'oauth_id' => '第一次注册时第三方登陆接口返回的 oauth_id',
-                'platform' => BaseDto::mapDesc('注册平台', Member::PLATFORM),
-                'business_id' => '商户ID，或模型ID',
                 'source' => '用户来源，通常为给第三方的标识',
             ],
             'request_except' => ['source', 'platform', 'business_id'],
             'response' => [
                 'user' => '用户信息',
+                'user.openid' => '用户ID',
                 'user.nickname' => 'nickname',
                 'user.avatar' => '头像',
-                'user.mobile' => '手机号',
                 'access_token' => 'token',
-                'expire_in' => '失效时间'
+                'expire_in' => '有效期',
+                'token_type' => '认证方式',
             ],
         ]));
     }

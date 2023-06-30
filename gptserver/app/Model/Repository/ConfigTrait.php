@@ -5,13 +5,9 @@ namespace App\Model\Repository;
 use App\Exception\ErrCode;
 use App\Exception\LogicException;
 use App\Http\Dto\Config\ConfigDtoInterface;
-use App\Http\Dto\Config\GptSecretKeyDto;
-use App\Http\Dto\Config\SalesmanRuleDto;
-use App\Http\Dto\Config\SmsChuangLanDto;
+use App\Http\Dto\Config\WebsiteConfigDto;
 use App\Http\Dto\Config\WechatPaymentDto;
 use App\Http\Dto\Config\WechatPlatformDto;
-use App\Http\Dto\Config\WechatWebDto;
-use App\Http\Service\ChatGPTService;
 use App\Http\Service\DevelopService;
 use App\Model\Config;
 use Hyperf\Database\Model\Builder;
@@ -25,9 +21,13 @@ trait ConfigTrait
 	public static $transfer = [
 		Config::WECHAT_PLATFORM => WechatPlatformDto::class, // 公众平台
 		Config::WECHAT_PAYMENT => WechatPaymentDto::class, // 微信支付
-        Config::WECHAT_WEB => WechatWebDto::class,  // 微信 web 端
-        Config::SMS_CHUANG_LAN => SmsChuangLanDto::class,   // 创蓝
-        Config::GPT_SECRET_KEY => GptSecretKeyDto::class,   // api 密钥
+        Config::WECHAT_WEB => \App\Http\Dto\Config\WechatWebDto::class,  // 微信 web 端
+        Config::SMS_CHUANG_LAN => \App\Http\Dto\Config\SmsChuangLanDto::class,   // 创蓝
+        Config::GPT_SECRET_KEY => \App\Http\Dto\Config\WebsiteConfigDto::class,   // 站点配置
+        Config::PROTOCOL => \App\Http\Dto\Config\ProtocolDto::class, // 协议配置
+        Config::PAYMENT => \App\Http\Dto\Config\PaymentDto::class,  // 支付配置
+        Config::KEYWORD => \App\Http\Dto\Config\KeywordDto::class, // 关键词配置
+        Config::SHARE => \App\Http\Dto\Config\ShareConfigDto::class,
 	];
 
 	// 根据类型 直接new相应的dto并传入数据
@@ -44,9 +44,7 @@ trait ConfigTrait
      */
 	public static function updateOrCreateByDto(ConfigDtoInterface $dto)
 	{
-        if ($dto instanceof GptSecretKeyDto) {
-            DevelopService::clearApiKeyCache();
-        }
+        DevelopService::clearApiKeyCache($dto::class);
 
         return Config::query()->updateOrCreate(
 			$dto->getUniqueFillable(),
@@ -64,13 +62,13 @@ trait ConfigTrait
 	{
 		throw_if(!in_array($type, array_keys(Config::TYPE)), LogicException::class, ErrCode::TYPE_IS_INVALID);
 
-		$config = Config::query()->where([
-			'type' => $type,
-		])->first();
+        if (! $config = cache()->get($class = Config::$transfer[$type])) {
+            $config = Config::query()->where('type', $type)->first();
+            $config = $config ? $config->config : [];
+            cache()->set($class, $config);
+        }
 
-		$data = $config ? $config->config : [];
-
-		return self::getTypeByDto($type, $data);
+		return self::getTypeByDto($type, $config);
 	}
 
     /**
