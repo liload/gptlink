@@ -2,7 +2,7 @@
   <h1 align="center">GPTLink</h1>
   <p> 只需简单几步，即可快速搭建可商用的 ChatGPT 站点。</p>
 
-  [体验地址](https://gpt-link.com/?shareOpenId=mjOfmdjyCBEku7fY) · [演示图片](./docs/show/README.md) · [反馈](https://github.com/gptlink/gptlink/issues) · [微信加群](./docs/images/qrcode.png)
+  [体验地址](./DEMO.md) · [演示图片](./docs/show/README.md) · [反馈](https://github.com/gptlink/gptlink/issues) · [微信加群](./docs/images/qrcode.png)
 
   [商务合作](./docs/images/qrcode.png) · [关注公众号](./docs/images/official.jpg) · [打赏开发者](./docs/images/payment.jpeg)
 
@@ -49,7 +49,17 @@
 
 ### 访问
 
-部署完成后访问 `http://域名或IP` 进入对话页面，`/admin/` 路径访问管理页，管理员账号密码为配置项设置的 `ADMIN_USERNAME` 与 `ADMIN_USERNAME` ，如不传入，默认账号密码为 `admin` `admin888`
+**项目访问**
+
+- 对话端 访问 `http://域名或IP` 进入对话页面
+- 管理端 访问 `http://域名或IP/admin` 进入管理页
+
+管理员账号密码为配置项设置的 `ADMIN_USERNAME` 与 `ADMIN_USERNAME`，如不传入，默认账号密码为 `admin` `admin888`
+
+**API 文档地址：**
+
+- 用户端 API 文档访问 `/api/docs/default` 
+- 管理端 API 文档访问 `/api/docs/admin`
 
 ## 版本计划
 - [x] [前端开源](https://github.com/gptlink/gptlink-web)
@@ -57,7 +67,6 @@
 - [x] 账号密码登录
 - [x] 线下收款配置
 - [x] 兑换码
-- [ ] 对话记录
 - [ ] AI 生图
 - [ ] 分销
 - [ ] 统计视图
